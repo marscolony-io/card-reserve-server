@@ -74,10 +74,10 @@ app.get('/is-reserved', (req: express.Request, res: express.Response) => {
   res.json([reserved]);
 });
 
-app.put('/reserve', (req: express.Request, res: express.Response) => {
+app.post('/reserve', (req: express.Request, res: express.Response) => {
   // TODO check reservation
   const { token, wallet, hash, test, mumbai } = req.body;
-  console.log({ token, wallet, hash, test, mumbai });
+  console.log(req.body);
   
   const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
   if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
