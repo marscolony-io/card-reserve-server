@@ -7,15 +7,18 @@ export const env = {
   inTest: false,
 }
 
-export const hash = (address: string, token: number): string => {
+export const hash = (address: string, token: number, mumbai: boolean): string => {
+  if (mumbai) {
+    return md5(`glass-${address}-${token}-trident`).substring(4, 10);
+  }
   return md5(`magnet-${address}-${token}-stadium`).substring(4, 10);
 };
 
-const checkValidity = (address: string, token: number, _hash: string) => {
+const checkValidity = (address: string, token: number, _hash: string, mumbai: boolean) => {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
     return false;
   }
-  return hash(address, token) === _hash;
+  return hash(address, token, mumbai) === _hash;
 };
 
 export const app = express();
@@ -24,16 +27,18 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-app.use((req: express.Request, res: express.Response, next: Function) => {
+app.use((req: express.Request, _: express.Response, next: Function) => {
   if (!env.inTest) console.log('ACCESS LOG', req.url);
   next();
 });
 
-const reserveMap: Map<number, number> = new Map();
+const reserveMapPolygon: Map<number, number> = new Map();
+const reserveMapMumbai: Map<number, number> = new Map();
 
 let microCache = [];
 let microCacheTimestamp = 0;
-const getReserved = () => {
+const getReserved = (mumbai: boolean) => {
+  const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
   const result = [];
   const now = new Date().getTime();
   if (now - microCacheTimestamp < 100 /* ms */) return microCache;
@@ -49,30 +54,36 @@ const getReserved = () => {
   return result;
 }
 
-app.get('/reserved', (req: express.Request, res: express.Response) => {
-  res.json(getReserved());
+app.get('/reserved', (_: express.Request, res: express.Response) => {
+  res.json(getReserved(false));
+});
+
+app.get('/reserved-mumbai', (_: express.Request, res: express.Response) => {
+  res.json(getReserved(true));
 });
 
 app.put('/reserve', (req: express.Request, res: express.Response) => {
-  const { token, wallet, hash, test } = req.body;
-  if (checkValidity(wallet, +token, hash)) {
+  const { token, wallet, hash, test, mumbai } = req.body;
+  const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
+  if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
     const ttl = test ? 0.5 : 5 * 60; // 0.5 seconds for test; 5 minutes to rule them all
     reserveMap.set(+token, new Date().getTime() + ttl * 1000);
     microCacheTimestamp = 0;
   }
-  res.json(getReserved());
+  res.json(getReserved(Boolean(mumbai)));
 });
 
 app.delete('/free', (req: express.Request, res: express.Response) => {
-  const { token, wallet, hash } = req.body;
-  if (checkValidity(wallet, +token, hash)) {
+  const { token, wallet, hash, mumbai } = req.body;
+  const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
+  if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
     reserveMap.delete(+token);
     microCacheTimestamp = 0;
   }
-  res.json(getReserved());
+  res.json(getReserved(Boolean(mumbai)));
 });
 
-app.use((req: express.Request, res: express.Response, next: Function) => {
+app.use((_: express.Request, res: express.Response) => {
   res.status(404).end();
 });
 

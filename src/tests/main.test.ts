@@ -36,7 +36,7 @@ describe('Reserve tests', () => {
   it('freeing unexistent reserve', async () => {
     const response = await request(app)
       .delete('/free')
-      .send({ token: 220, wallet: addresses[0], hash: hash(addresses[0], 220) })
+      .send({ token: 220, wallet: addresses[0], hash: hash(addresses[0], 220, false) })
       .set('Accept', 'application/json');
     
     expect(response.headers["content-type"]).match(/json/);
@@ -47,7 +47,7 @@ describe('Reserve tests', () => {
   it('reserve token', async () => {
     const response = await request(app)
       .put('/reserve')
-      .send({ token: 555, test: true, wallet: addresses[0], hash: hash(addresses[0], 555) })
+      .send({ token: 555, test: true, wallet: addresses[0], hash: hash(addresses[0], 555, false) })
       .set('Accept', 'application/json');
     
     expect(response.headers["content-type"]).match(/json/);
@@ -79,7 +79,7 @@ describe('Reserve tests', () => {
   it('reserve token', async () => {
     const response = await request(app)
       .put('/reserve')
-      .send({ token: 333, test: true, wallet: addresses[0], hash: hash(addresses[0], 333) })
+      .send({ token: 333, test: true, wallet: addresses[0], hash: hash(addresses[0], 333, false) })
       .set('Accept', 'application/json');
     
     expect(response.headers["content-type"]).match(/json/);
@@ -90,7 +90,7 @@ describe('Reserve tests', () => {
   it('reserve another token', async () => {
     const response = await request(app)
       .put('/reserve')
-      .send({ token: 444, test: true, wallet: addresses[0], hash: hash(addresses[0], 444) })
+      .send({ token: 444, test: true, wallet: addresses[0], hash: hash(addresses[0], 444, false) })
       .set('Accept', 'application/json');
     
     expect(response.headers["content-type"]).match(/json/);
@@ -111,7 +111,7 @@ describe('Reserve tests', () => {
   it('free token', async () => {
     const response = await request(app)
       .delete('/free')
-      .send({ token: 333, wallet: addresses[0], hash: hash(addresses[0], 333) })
+      .send({ token: 333, wallet: addresses[0], hash: hash(addresses[0], 333, false) })
       .set('Accept', 'application/json');
     
     expect(response.headers["content-type"]).match(/json/);
