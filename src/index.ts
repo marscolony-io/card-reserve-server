@@ -18,6 +18,10 @@ const checkValidity = (address: string, token: number, _hash: string, mumbai: bo
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
     return false;
   }
+  if (hash(address, token, mumbai) !== _hash) {
+    console.log('WRONG HASH', hash(address, token, mumbai), _hash);
+  }
+  
   return hash(address, token, mumbai) === _hash;
 };
 
@@ -71,6 +75,7 @@ app.get('/is-reserved', (req: express.Request, res: express.Response) => {
 });
 
 app.put('/reserve', (req: express.Request, res: express.Response) => {
+  // TODO check reservation
   const { token, wallet, hash, test, mumbai } = req.body;
   const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
   if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
