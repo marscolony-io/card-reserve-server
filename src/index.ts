@@ -16,6 +16,8 @@ export const hash = (address: string, token: number, mumbai: boolean): string =>
 
 const checkValidity = (address: string, token: number, _hash: string, mumbai: boolean) => {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    console.log({ address });
+    
     return false;
   }
   if (hash(address, token, mumbai) !== _hash) {
