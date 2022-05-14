@@ -75,19 +75,21 @@ app.get('/is-reserved', (req: express.Request, res: express.Response) => {
 });
 
 app.post('/reserve', (req: express.Request, res: express.Response) => {
-  // TODO check reservation
   const { token, wallet, hash, test, mumbai } = req.body;
-  console.log(req.body);
   
   const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
+  const reserved = reserveMap.has(+token) && reserveMap.get(+token) > new Date().getTime();
+  if (reserved) {
+    res.json({ success: false });
+    return;
+  }
   if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
     const ttl = test ? 0.5 : 5 * 60; // 0.5 seconds for test; 5 minutes to rule them all
     reserveMap.set(+token, new Date().getTime() + ttl * 1000);
-    console.log('SWET', reserveMap);
     
     microCacheTimestamp = 0;
   }
-  res.json(getReserved(Boolean(mumbai)));
+  res.json({ success: true, reserve: getReserved(Boolean(mumbai)) });
 });
 
 app.delete('/free', (req: express.Request, res: express.Response) => {
