@@ -62,6 +62,14 @@ app.get('/reserved-mumbai', (_: express.Request, res: express.Response) => {
   res.json(getReserved(true));
 });
 
+app.get('/is-reserved', (req: express.Request, res: express.Response) => {
+  const { token, mumbai } = req.query;
+  const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
+  const now = new Date().getTime();
+  const reserved = reserveMap.has(+token) && reserveMap.get(+token) > now;
+  res.json([reserved]);
+});
+
 app.put('/reserve', (req: express.Request, res: express.Response) => {
   const { token, wallet, hash, test, mumbai } = req.body;
   const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;

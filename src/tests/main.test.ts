@@ -44,6 +44,16 @@ describe('Reserve tests', () => {
     expect(response.body).eql([]);
   });
 
+  it('checking reserve', async () => {
+    const response = await request(app)
+      .get('/is-reserved/?token=555')
+      .set('Accept', 'application/json');
+    
+    expect(response.headers["content-type"]).match(/json/);
+    expect(response.status).equal(200);
+    expect(response.body).eql([false]);
+  });
+
   it('reserve token', async () => {
     const response = await request(app)
       .put('/reserve')
@@ -53,6 +63,16 @@ describe('Reserve tests', () => {
     expect(response.headers["content-type"]).match(/json/);
     expect(response.status).equal(200);
     expect(response.body).eql([555]);
+  });
+
+  it('checking reserve', async () => {
+    const response = await request(app)
+      .get('/is-reserved/?token=555')
+      .set('Accept', 'application/json');
+    
+    expect(response.headers["content-type"]).match(/json/);
+    expect(response.status).equal(200);
+    expect(response.body).eql([true]);
   });
 
   it('checking reserve', async () => {
