@@ -31,11 +31,6 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-app.use((req: express.Request, _: express.Response, next: Function) => {
-  if (!env.inTest) console.log('ACCESS LOG', req.url);
-  next();
-});
-
 const reserveMapPolygon: Map<number, number> = new Map();
 const reserveMapMumbai: Map<number, number> = new Map();
 
@@ -72,6 +67,11 @@ app.get('/is-reserved', (req: express.Request, res: express.Response) => {
   const now = new Date().getTime();
   const reserved = reserveMap.has(+token) && reserveMap.get(+token) > now;
   res.json([reserved]);
+});
+
+app.use((req: express.Request, _: express.Response, next: Function) => {
+  if (!env.inTest) console.log('ACCESS LOG', req.url);
+  next();
 });
 
 app.post('/reserve', (req: express.Request, res: express.Response) => {
