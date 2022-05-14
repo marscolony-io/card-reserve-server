@@ -81,6 +81,8 @@ app.put('/reserve', (req: express.Request, res: express.Response) => {
   if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
     const ttl = test ? 0.5 : 5 * 60; // 0.5 seconds for test; 5 minutes to rule them all
     reserveMap.set(+token, new Date().getTime() + ttl * 1000);
+    console.log('SWET', reserveMap);
+    
     microCacheTimestamp = 0;
   }
   res.json(getReserved(Boolean(mumbai)));
