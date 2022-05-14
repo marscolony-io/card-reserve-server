@@ -16,8 +16,6 @@ export const hash = (address: string, token: number, mumbai: boolean): string =>
 
 const checkValidity = (address: string, token: number, _hash: string, mumbai: boolean) => {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
-    console.log({ address });
-    
     return false;
   }
   if (hash(address, token, mumbai) !== _hash) {
@@ -79,6 +77,8 @@ app.get('/is-reserved', (req: express.Request, res: express.Response) => {
 app.put('/reserve', (req: express.Request, res: express.Response) => {
   // TODO check reservation
   const { token, wallet, hash, test, mumbai } = req.body;
+  console.log({ token, wallet, hash, test, mumbai });
+  
   const reserveMap = mumbai ? reserveMapMumbai : reserveMapPolygon;
   if (checkValidity(wallet, +token, hash, Boolean(mumbai))) {
     const ttl = test ? 0.5 : 5 * 60; // 0.5 seconds for test; 5 minutes to rule them all
